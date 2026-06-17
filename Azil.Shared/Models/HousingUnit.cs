@@ -1,5 +1,4 @@
 ﻿namespace AzilEdu.Shared.Models;
-
 public class HousingUnit
 {
     public int Id { get; set; }

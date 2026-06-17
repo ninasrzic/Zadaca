@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="Azil.Api/Azil.Api.csproj" />
   <Project Path="Azil.App/Azil.App.csproj" />
-  <Project Path="Azil.Shared/Azil.Shared.csproj" />
+  <Project Path="Azil.Shared/AzilEdu.Shared.csproj" />
 </Solution>

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Azil.Shared\Azil.Shared.csproj" />
+    <ProjectReference Include="..\Azil.Shared\AzilEdu.Shared.csproj" />
   </ItemGroup>
 
 </Project>
