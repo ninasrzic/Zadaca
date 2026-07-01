@@ -1,4 +1,5 @@
 ﻿using AzilEdu.Api.Data;
+using AzilEdu.Shared.DTOs;
 using AzilEdu.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,122 @@ public class HousingUnitsController : ControllerBase
         _context = context;
     }
 
+    // 1. GET: api/housingunits (Vraća listu svih DTO-a)
     [HttpGet]
-    public async Task<ActionResult<List<HousingUnit>>> GetHousingUnits()
+    public async Task<ActionResult<List<HousingUnitDto>>> GetHousingUnits()
     {
-        var housingUnits = await _context.HousingUnits
-            .OrderBy(HousingUnit => HousingUnit.Name)
+        var units = await _context.HousingUnits
+            .Select(h => new HousingUnitDto
+            {
+                Id = h.Id,
+                Name = h.Name,
+                UnitType = h.UnitType,
+                Capacity = h.Capacity,
+                Occupied = h.Occupied,
+                LastCleanedAt = h.LastCleanedAt,
+                IsActive = h.IsActive,
+                ImageUrl = h.ImageUrl,
+                Note = h.Note
+            })
             .ToListAsync();
 
-        return Ok(housingUnits);
+        return Ok(units);
+    }
+
+    // 2. GET by ID: api/housingunits/5 (Vraća jedan DTO po ID-u)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<HousingUnitDto>> GetHousingUnitById(int id)
+    {
+        var h = await _context.HousingUnits.FindAsync(id);
+
+        if (h is null)
+            return NotFound();
+
+        var dto = new HousingUnitDto
+        {
+            Id = h.Id,
+            Name = h.Name,
+            UnitType = h.UnitType,
+            Capacity = h.Capacity,
+            Occupied = h.Occupied,
+            LastCleanedAt = h.LastCleanedAt,
+            IsActive = h.IsActive,
+            ImageUrl = h.ImageUrl,
+            Note = h.Note
+        };
+
+        return Ok(dto);
+    }
+
+    // 3. POST: api/housingunits (Kreira novi zapis iz SaveHousingUnitDto)
+    [HttpPost]
+    public async Task<ActionResult<HousingUnitDto>> CreateHousingUnit(SaveHousingUnitDto dto)
+    {
+        var unit = new HousingUnit
+        {
+            Name = dto.Name,
+            UnitType = dto.UnitType,
+            Capacity = dto.Capacity,
+            Occupied = dto.Occupied,
+            LastCleanedAt = dto.LastCleanedAt,
+            IsActive = dto.IsActive,
+            ImageUrl = dto.ImageUrl,
+            Note = dto.Note
+        };
+
+        _context.HousingUnits.Add(unit);
+        await _context.SaveChangesAsync();
+
+        var result = new HousingUnitDto
+        {
+            Id = unit.Id,
+            Name = unit.Name,
+            UnitType = unit.UnitType,
+            Capacity = unit.Capacity,
+            Occupied = unit.Occupied,
+            LastCleanedAt = unit.LastCleanedAt,
+            IsActive = unit.IsActive,
+            ImageUrl = unit.ImageUrl,
+            Note = unit.Note
+        };
+
+        return CreatedAtAction(nameof(GetHousingUnitById), new { id = unit.Id }, result);
+    }
+
+    // 4. PUT: api/housingunits/5 (Ažurira postojeći zapis)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateHousingUnit(int id, SaveHousingUnitDto dto)
+    {
+        var unit = await _context.HousingUnits.FindAsync(id);
+
+        if (unit is null)
+            return NotFound();
+
+        unit.Name = dto.Name;
+        unit.UnitType = dto.UnitType;
+        unit.Capacity = dto.Capacity;
+        unit.Occupied = dto.Occupied;
+        unit.LastCleanedAt = dto.LastCleanedAt;
+        unit.IsActive = dto.IsActive;
+        unit.ImageUrl = dto.ImageUrl;
+        unit.Note = dto.Note;
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    // 5. DELETE: api/housingunits/5 (Briše zapis)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteHousingUnit(int id)
+    {
+        var unit = await _context.HousingUnits.FindAsync(id);
+
+        if (unit is null)
+            return NotFound();
+
+        _context.HousingUnits.Remove(unit);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
