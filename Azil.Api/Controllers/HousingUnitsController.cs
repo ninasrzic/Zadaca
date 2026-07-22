@@ -17,7 +17,6 @@ public class HousingUnitsController : ControllerBase
         _context = context;
     }
 
-    // 1. GET: api/housingunits (Vraća listu svih DTO-a)
     [HttpGet]
     public async Task<ActionResult<List<HousingUnitDto>>> GetHousingUnits()
     {
@@ -39,14 +38,15 @@ public class HousingUnitsController : ControllerBase
         return Ok(units);
     }
 
-    // 2. GET by ID: api/housingunits/5 (Vraća jedan DTO po ID-u)
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<HousingUnitDto>> GetHousingUnitById(int id)
     {
         var h = await _context.HousingUnits.FindAsync(id);
 
         if (h is null)
+        {
             return NotFound();
+        }
 
         var dto = new HousingUnitDto
         {
@@ -64,9 +64,9 @@ public class HousingUnitsController : ControllerBase
         return Ok(dto);
     }
 
-    // 3. POST: api/housingunits (Kreira novi zapis iz SaveHousingUnitDto)
     [HttpPost]
-    public async Task<ActionResult<HousingUnitDto>> CreateHousingUnit(SaveHousingUnitDto dto)
+    public async Task<ActionResult<HousingUnitDto>> CreateHousingUnit(
+        [FromBody] SaveHousingUnitDto dto)
     {
         var unit = new HousingUnit
         {
@@ -96,17 +96,23 @@ public class HousingUnitsController : ControllerBase
             Note = unit.Note
         };
 
-        return CreatedAtAction(nameof(GetHousingUnitById), new { id = unit.Id }, result);
+        return CreatedAtAction(
+            nameof(GetHousingUnitById),
+            new { id = unit.Id },
+            result);
     }
 
-    // 4. PUT: api/housingunits/5 (Ažurira postojeći zapis)
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateHousingUnit(int id, SaveHousingUnitDto dto)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateHousingUnit(
+        int id,
+        [FromBody] SaveHousingUnitDto dto)
     {
         var unit = await _context.HousingUnits.FindAsync(id);
 
         if (unit is null)
+        {
             return NotFound();
+        }
 
         unit.Name = dto.Name;
         unit.UnitType = dto.UnitType;
@@ -118,17 +124,19 @@ public class HousingUnitsController : ControllerBase
         unit.Note = dto.Note;
 
         await _context.SaveChangesAsync();
+
         return NoContent();
     }
 
-    // 5. DELETE: api/housingunits/5 (Briše zapis)
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteHousingUnit(int id)
     {
         var unit = await _context.HousingUnits.FindAsync(id);
 
         if (unit is null)
+        {
             return NotFound();
+        }
 
         _context.HousingUnits.Remove(unit);
         await _context.SaveChangesAsync();

@@ -1,7 +1,6 @@
 using AzilEdu.Api.Data;
 using AzilEdu.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +18,106 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AzilEduDbContext>();
 
     await db.Database.MigrateAsync();
+
+    if (!await db.Volunteers.AnyAsync())
+    {
+        db.Volunteers.AddRange(
+            new Volunteer
+            {
+                FirstName = "Jakov",
+                LastName = "Puž",
+                Email = "jakovpuz@example.com",
+                Phone = "093 456 123",
+                Skills = "Šetnja i hranjenje pasa",
+                AvailableFrom = new DateTime(2026, 2, 5),
+                Notes = "-.",
+                VolunteerStatusId = 2
+            },
+            new Volunteer
+            {
+                FirstName = "Anja",
+                LastName = "Anjić",
+                Email ="aanjnj@example.com",
+                Phone = "097 836 231",
+                Skills = "Šetnja i hranjenje pasa",
+                AvailableFrom = new DateTime(2026, 12, 2),
+                Notes = "Alergija na mačke",
+                VolunteerStatusId = 3
+            },
+            new Volunteer
+            {
+                FirstName = "Slavko",
+                LastName = "Kul",
+                Email = "skul@example.com",
+                Phone = "099 999 9999",
+                Skills = "Čišćenje kaveza",
+                AvailableFrom = new DateTime(2026, 7, 3),
+                Notes = "Probni rok",
+                VolunteerStatusId = 1
+            }
+        );
+    }
+    if (!await db.Donors.AnyAsync())
+    {
+        db.Donors.AddRange(
+            new Donor
+            {
+                FirstName = "Jana",
+                LastName = "Janić",
+                Email = "jana.janic@example.com",
+                Phone = "099 121 1212",
+                Address = "Solinska 7",
+                City = "Split",
+                Notes = "nema",
+                CreatedAt = new DateTime(2026, 5, 20),
+                DonorTypeId = 1,
+                DonorStatusId = 2
+            },
+            new Donor
+            {
+                OrganizationName = "ZaPse d.o.o",
+                Email = "zapse@example.com",
+                Phone = "098 878 122",
+                Address = "Pujanke 12",
+                City = "Split",
+                Notes = "Potencijalni donator opreme.",
+                CreatedAt = new DateTime(2026, 7, 2),
+                DonorTypeId = 2,
+                DonorStatusId = 1
+            }
+        );
+    }
+    if (!await db.Employees.AnyAsync())
+    {
+        db.Employees.AddRange(
+            new Employee
+            {
+                FirstName = "Jan",
+                LastName = "Janić",
+                Email = "jan.janić@aziledu.example.com",
+                Phone = "095 545 234",
+                EmployeeNumber = "EMP-001",
+                HireDate = new DateTime(2020, 2, 12),
+                Notes = "Voditelj smjene.",
+                EmployeePositionId = 3,
+                EmployeeStatusId = 1
+            },
+            new Employee
+            {
+                FirstName = "Lovre",
+                LastName = "Lovrić",
+                Email ="lovrelov@aziledu.example.com",
+                Phone = "099 876 233",
+                EmployeeNumber = "EMP-002",
+                HireDate = new DateTime(2024, 9, 10),
+                Notes = "..",
+                EmployeePositionId = 1,
+                EmployeeStatusId = 1
+            }
+        );
+    }
+
+
 
     if (!await db.HousingUnits.AnyAsync())
     {
@@ -96,9 +195,9 @@ using (var scope = app.Services.CreateScope())
             ImageUrl = "/images/housing-units/inactive-unit.webp"
         }
         );
-
-        await db.SaveChangesAsync();
     }
+
+    await db.SaveChangesAsync();
 }
 
 if (app.Environment.IsDevelopment())
